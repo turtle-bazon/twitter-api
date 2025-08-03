@@ -21,8 +21,9 @@
 (defn- add-form-content-type
   "adds a content type of url-encoded-form to the supplied headers"
   [headers]
-  (merge headers
-         {:content-type "application/x-www-form-urlencoded"}))
+  (cond-> headers
+    (not (:content-type headers))
+    (merge {:content-type "application/x-www-form-urlencoded"})))
 
 (def memo-create-client (memoize ac/create-client))
 

@@ -5,172 +5,182 @@
             [twitter.core :refer [def-twitter-method]])
   (:import (com.ning.http.client.multipart ByteArrayPart StringPart)))
 
-(def ^:dynamic *rest-api* (->ApiContext "https" "api.twitter.com" "1.1"))
+(def ^:dynamic *rest-api-11* (->ApiContext "https" "api.twitter.com" "1.1"))
+(def ^:dynamic *rest-api-2* (->ApiContext "https" "api.twitter.com" "2"))
 (def ^:dynamic *oauth-api* (->ApiContext "https" "api.twitter.com" nil))
 (def ^:dynamic *rest-upload-api* (->ApiContext "https" "upload.twitter.com" "1.1"))
 
-(defmacro def-twitter-restful-method
+(defmacro def-twitter-restful-method-11
   {:requires [#'def-twitter-method get-default-callbacks]}
   [verb resource-path & rest]
   (let [json-path (str resource-path ".json") ; v1.1 is .json only.
         fn-name (-> resource-path clean-resource-path symbol)]
-    `(def-twitter-method ~fn-name ~verb ~json-path :api ~*rest-api* :callbacks (get-default-callbacks :sync :single) ~@rest)))
+    `(def-twitter-method ~fn-name ~verb ~json-path :api ~*rest-api-11* :callbacks (get-default-callbacks :sync :single) ~@rest)))
+
+(defmacro def-twitter-restful-method-2
+  {:requires [#'def-twitter-method get-default-callbacks]}
+  [verb resource-path & rest]
+  (let [fn-name (-> resource-path clean-resource-path symbol)]
+    `(def-twitter-method ~fn-name ~verb ~resource-path :api ~*rest-api-2* :callbacks (get-default-callbacks :sync :single) ~@rest)))
 
 ;; Accounts
-(def-twitter-restful-method :get  "account/settings")
-(def-twitter-restful-method :get  "account/verify_credentials")
-(def-twitter-restful-method :post "account/update_delivery_device")
-(def-twitter-restful-method :post "account/update_profile")
-(def-twitter-restful-method :post "account/update_profile_background_image")
-(def-twitter-restful-method :post "account/update_profile_colors")
-(def-twitter-restful-method :post "account/update_profile_image")
-(def-twitter-restful-method :post "account/remove_profile_banner")
-(def-twitter-restful-method :post "account/update_profile_banner")
-(def-twitter-restful-method :post "users/profile_banner")
-(def-twitter-restful-method :get  "application/rate_limit_status")
+(def-twitter-restful-method-11 :get  "account/settings")
+(def-twitter-restful-method-11 :get  "account/verify_credentials")
+(def-twitter-restful-method-11 :post "account/update_delivery_device")
+(def-twitter-restful-method-11 :post "account/update_profile")
+(def-twitter-restful-method-11 :post "account/update_profile_background_image")
+(def-twitter-restful-method-11 :post "account/update_profile_colors")
+(def-twitter-restful-method-11 :post "account/update_profile_image")
+(def-twitter-restful-method-11 :post "account/remove_profile_banner")
+(def-twitter-restful-method-11 :post "account/update_profile_banner")
+(def-twitter-restful-method-11 :post "users/profile_banner")
+(def-twitter-restful-method-11 :get  "application/rate_limit_status")
 
 ;; Blocks
-(def-twitter-restful-method :get  "blocks/list")
-(def-twitter-restful-method :get  "blocks/ids")
-(def-twitter-restful-method :post "blocks/create")
-(def-twitter-restful-method :post "blocks/destroy")
+(def-twitter-restful-method-11 :get  "blocks/list")
+(def-twitter-restful-method-11 :get  "blocks/ids")
+(def-twitter-restful-method-11 :post "blocks/create")
+(def-twitter-restful-method-11 :post "blocks/destroy")
 
 ;; Timeline
-(def-twitter-restful-method :get "statuses/mentions_timeline")
-(def-twitter-restful-method :get "statuses/user_timeline")
-(def-twitter-restful-method :get "statuses/home_timeline")
-(def-twitter-restful-method :get "statuses/retweets_of_me")
+(def-twitter-restful-method-11 :get "statuses/mentions_timeline")
+(def-twitter-restful-method-11 :get "statuses/user_timeline")
+(def-twitter-restful-method-11 :get "statuses/home_timeline")
+(def-twitter-restful-method-11 :get "statuses/retweets_of_me")
 
 ;; Statuses
-(def-twitter-restful-method :get  "statuses/lookup")
-(def-twitter-restful-method :get  "statuses/retweets/{:id}")
-(def-twitter-restful-method :get  "statuses/show/{:id}")
-(def-twitter-restful-method :post "statuses/destroy/{:id}")
-(def-twitter-restful-method :post "statuses/update")
-(def-twitter-restful-method :post "statuses/retweet/{:id}")
-(def-twitter-restful-method :get  "statuses/oembed")
+(def-twitter-restful-method-11 :get  "statuses/lookup")
+(def-twitter-restful-method-11 :get  "statuses/retweets/{:id}")
+(def-twitter-restful-method-11 :get  "statuses/show/{:id}")
+(def-twitter-restful-method-11 :post "statuses/destroy/{:id}")
+(def-twitter-restful-method-11 :post "statuses/update")
+(def-twitter-restful-method-11 :post "statuses/retweet/{:id}")
+(def-twitter-restful-method-11 :get  "statuses/oembed")
 ; Supply the status and file to the :body as a sequence using the functions 'file-body-part' and 'status-body-part'
 ; i.e. :body [(file-body-part "/pics/mypic.jpg") (status-body-part "hello world")]
 ; for an example, see twitter.test.upload
-(def-twitter-restful-method :post "statuses/update_with_media"
-                            :api *rest-api*
-                            :headers {:content-type "multipart/form-data"})
+(def-twitter-restful-method-11 :post "statuses/update_with_media"
+                               :api *rest-api*
+                               :headers {:content-type "multipart/form-data"})
 
 ;; Media
-(def-twitter-restful-method :post "media/upload"
-                            :api *rest-upload-api*
-                            :headers {:content-type "multipart/form-data"})
+(def-twitter-restful-method-11 :post "media/upload"
+                               :api *rest-upload-api*
+                               :headers {:content-type "multipart/form-data"})
 
 ;; Search
-(def-twitter-restful-method :get "search/tweets")
+(def-twitter-restful-method-11 :get "search/tweets")
 
 ;; User
-(def-twitter-restful-method :get "users/show")
-(def-twitter-restful-method :get "users/lookup")
-(def-twitter-restful-method :get "users/search")
-(def-twitter-restful-method :get "users/contributees")
-(def-twitter-restful-method :get "users/contributors")
-(def-twitter-restful-method :get "users/suggestions")
-(def-twitter-restful-method :get "users/suggestions/{:slug}")
-(def-twitter-restful-method :get "users/suggestions/{:slug}/members")
+(def-twitter-restful-method-11 :get "users/show")
+(def-twitter-restful-method-11 :get "users/lookup")
+(def-twitter-restful-method-11 :get "users/search")
+(def-twitter-restful-method-11 :get "users/contributees")
+(def-twitter-restful-method-11 :get "users/contributors")
+(def-twitter-restful-method-11 :get "users/suggestions")
+(def-twitter-restful-method-11 :get "users/suggestions/{:slug}")
+(def-twitter-restful-method-11 :get "users/suggestions/{:slug}/members")
 
 ;; Trends
-(def-twitter-restful-method :get "trends/place")
-(def-twitter-restful-method :get "trends/available")
-(def-twitter-restful-method :get "trends/closest")
+(def-twitter-restful-method-11 :get "trends/place")
+(def-twitter-restful-method-11 :get "trends/available")
+(def-twitter-restful-method-11 :get "trends/closest")
 
 ;; Oauth
-(def-twitter-restful-method :get  "oauth/authenticate" :api *oauth-api*)
-(def-twitter-restful-method :get  "oauth/authorize" :api *oauth-api*)
-(def-twitter-restful-method :post "oauth/access_token" :api *oauth-api*)
-(def-twitter-restful-method :post "oauth/request_token" :api *oauth-api*)
+(def-twitter-restful-method-11 :get  "oauth/authenticate" :api *oauth-api*)
+(def-twitter-restful-method-11 :get  "oauth/authorize" :api *oauth-api*)
+(def-twitter-restful-method-11 :post "oauth/access_token" :api *oauth-api*)
+(def-twitter-restful-method-11 :post "oauth/request_token" :api *oauth-api*)
 
 ;; Lists
-(def-twitter-restful-method :get  "lists/list")
-(def-twitter-restful-method :get  "lists/statuses")
-(def-twitter-restful-method :get  "lists/show")
-(def-twitter-restful-method :get  "lists/memberships")
-(def-twitter-restful-method :get  "lists/subscriptions")
-(def-twitter-restful-method :get  "lists/ownerships")
-(def-twitter-restful-method :post "lists/create")
-(def-twitter-restful-method :post "lists/update")
-(def-twitter-restful-method :post "lists/destroy")
+(def-twitter-restful-method-11 :get  "lists/list")
+(def-twitter-restful-method-11 :get  "lists/statuses")
+(def-twitter-restful-method-11 :get  "lists/show")
+(def-twitter-restful-method-11 :get  "lists/memberships")
+(def-twitter-restful-method-11 :get  "lists/subscriptions")
+(def-twitter-restful-method-11 :get  "lists/ownerships")
+(def-twitter-restful-method-11 :post "lists/create")
+(def-twitter-restful-method-11 :post "lists/update")
+(def-twitter-restful-method-11 :post "lists/destroy")
 
 ;; List members
-(def-twitter-restful-method :post "lists/members/destroy")
-(def-twitter-restful-method :post "lists/members/destroy_all")
-(def-twitter-restful-method :get  "lists/members")
-(def-twitter-restful-method :get  "lists/members/show")
-(def-twitter-restful-method :post "lists/members/create")
-(def-twitter-restful-method :post "lists/members/create_all")
+(def-twitter-restful-method-11 :post "lists/members/destroy")
+(def-twitter-restful-method-11 :post "lists/members/destroy_all")
+(def-twitter-restful-method-11 :get  "lists/members")
+(def-twitter-restful-method-11 :get  "lists/members/show")
+(def-twitter-restful-method-11 :post "lists/members/create")
+(def-twitter-restful-method-11 :post "lists/members/create_all")
 
 ;; List subscribers
-(def-twitter-restful-method :get  "lists/subscribers")
-(def-twitter-restful-method :get  "lists/subscribers/show")
-(def-twitter-restful-method :post "lists/subscribers/create")
-(def-twitter-restful-method :post "lists/subscribers/destroy")
+(def-twitter-restful-method-11 :get  "lists/subscribers")
+(def-twitter-restful-method-11 :get  "lists/subscribers/show")
+(def-twitter-restful-method-11 :post "lists/subscribers/create")
+(def-twitter-restful-method-11 :post "lists/subscribers/destroy")
 
 ;; Direct messages
-(def-twitter-restful-method :get  "direct_messages")
-(def-twitter-restful-method :get  "direct_messages/sent")
-(def-twitter-restful-method :get  "direct_messages/show")
-(def-twitter-restful-method :post "direct_messages/new")
-(def-twitter-restful-method :post "direct_messages/destroy")
+(def-twitter-restful-method-11 :get  "direct_messages")
+(def-twitter-restful-method-11 :get  "direct_messages/sent")
+(def-twitter-restful-method-11 :get  "direct_messages/show")
+(def-twitter-restful-method-11 :post "direct_messages/new")
+(def-twitter-restful-method-11 :post "direct_messages/destroy")
 
 ;; Friendships
-(def-twitter-restful-method :get  "friendships/lookup")
-(def-twitter-restful-method :post "friendships/create")
-(def-twitter-restful-method :post "friendships/destroy")
-(def-twitter-restful-method :post "friendships/update")
-(def-twitter-restful-method :get  "friendships/show")
-(def-twitter-restful-method :get  "friendships/incoming")
-(def-twitter-restful-method :get  "friendships/outgoing")
-(def-twitter-restful-method :get  "friendships/no_retweets/ids")
+(def-twitter-restful-method-11 :get  "friendships/lookup")
+(def-twitter-restful-method-11 :post "friendships/create")
+(def-twitter-restful-method-11 :post "friendships/destroy")
+(def-twitter-restful-method-11 :post "friendships/update")
+(def-twitter-restful-method-11 :get  "friendships/show")
+(def-twitter-restful-method-11 :get  "friendships/incoming")
+(def-twitter-restful-method-11 :get  "friendships/outgoing")
+(def-twitter-restful-method-11 :get  "friendships/no_retweets/ids")
 
 ;; Friends and followers
-(def-twitter-restful-method :get "friends/ids")
-(def-twitter-restful-method :get "friends/list")
-(def-twitter-restful-method :get "followers/ids")
-(def-twitter-restful-method :get "followers/list")
+(def-twitter-restful-method-11 :get "friends/ids")
+(def-twitter-restful-method-11 :get "friends/list")
+(def-twitter-restful-method-11 :get "followers/ids")
+(def-twitter-restful-method-11 :get "followers/list")
 
 ;; Favourites
-(def-twitter-restful-method :get  "favorites/list")
-(def-twitter-restful-method :post "favorites/destroy")
-(def-twitter-restful-method :post "favorites/create")
+(def-twitter-restful-method-11 :get  "favorites/list")
+(def-twitter-restful-method-11 :post "favorites/destroy")
+(def-twitter-restful-method-11 :post "favorites/create")
 
 ;; Report spam
-(def-twitter-restful-method :post "users/report_spam")
+(def-twitter-restful-method-11 :post "users/report_spam")
 
 ;; Saved searches
-(def-twitter-restful-method :get  "saved_searches/list")
-(def-twitter-restful-method :get  "saved_searches/show/{:id}")
-(def-twitter-restful-method :post "saved_searches/create")
-(def-twitter-restful-method :post "saved_searches/destroy/{:id}")
+(def-twitter-restful-method-11 :get  "saved_searches/list")
+(def-twitter-restful-method-11 :get  "saved_searches/show/{:id}")
+(def-twitter-restful-method-11 :post "saved_searches/create")
+(def-twitter-restful-method-11 :post "saved_searches/destroy/{:id}")
 
 ;; Collections
-(def-twitter-restful-method :get  "collections/entries")
-(def-twitter-restful-method :get  "collections/list")
-(def-twitter-restful-method :get  "collections/show")
-(def-twitter-restful-method :post  "collections/create")
-(def-twitter-restful-method :post  "collections/destory")
-(def-twitter-restful-method :post  "collections/entries/add")
-(def-twitter-restful-method :post  "collections/entries/curate")
-(def-twitter-restful-method :post  "collections/entries/move")
-(def-twitter-restful-method :post  "collections/entries/remove")
-(def-twitter-restful-method :post  "collections/update")
+(def-twitter-restful-method-11 :get  "collections/entries")
+(def-twitter-restful-method-11 :get  "collections/list")
+(def-twitter-restful-method-11 :get  "collections/show")
+(def-twitter-restful-method-11 :post  "collections/create")
+(def-twitter-restful-method-11 :post  "collections/destory")
+(def-twitter-restful-method-11 :post  "collections/entries/add")
+(def-twitter-restful-method-11 :post  "collections/entries/curate")
+(def-twitter-restful-method-11 :post  "collections/entries/move")
+(def-twitter-restful-method-11 :post  "collections/entries/remove")
+(def-twitter-restful-method-11 :post  "collections/update")
 
 ;; Geo
-(def-twitter-restful-method :get  "geo/id/{:place_id}")
-(def-twitter-restful-method :get  "geo/reverse_geocode")
-(def-twitter-restful-method :get  "geo/search")
-(def-twitter-restful-method :get  "geo/similar_places")
-(def-twitter-restful-method :post "geo/place")
+(def-twitter-restful-method-11 :get  "geo/id/{:place_id}")
+(def-twitter-restful-method-11 :get  "geo/reverse_geocode")
+(def-twitter-restful-method-11 :get  "geo/search")
+(def-twitter-restful-method-11 :get  "geo/similar_places")
+(def-twitter-restful-method-11 :post "geo/place")
 
 ;; Help
-(def-twitter-restful-method :get "help/configuration")
-(def-twitter-restful-method :get "help/languages")
-(def-twitter-restful-method :get "help/tos")
-(def-twitter-restful-method :get "help/privacy")
+(def-twitter-restful-method-11 :get "help/configuration")
+(def-twitter-restful-method-11 :get "help/languages")
+(def-twitter-restful-method-11 :get "help/tos")
+(def-twitter-restful-method-11 :get "help/privacy")
+
+;;
+(def-twitter-restful-method-2 :post "tweets")
 
 (defn media-upload-chunked
   "helper for uploading media using the chunked media upload API"

@@ -98,21 +98,29 @@
   "adds the body (or sequence of bodies) onto the request builder, dealing with the special cases"
   [^RequestBuilder rb body content-type]
   (cond
-    (= "multipart/form-data" content-type) (doseq [bp (if (coll? body) body (list body))]
-                                             (.addBodyPart rb bp))
-    (map? body) (doseq [[k v] body]
-                  (.addFormParam rb
-                                 (if (keyword? k) (name k) k)
-                                 (str v)))
+    (= "multipart/form-data" content-type)
+    (doseq [bp (if (coll? body) body (list body))]
+      (.addBodyPart rb bp))
 
-    (string? body) (.setBody rb (.getBytes (if (= "application/x-www-form-urlencoded" content-type)
-                                             (req/url-encode body)
-                                             body)
-                                           "UTF-8"))
+    (map? body)
+    (if (= "application/json" content-type)
+      (.setBody rb (.getBytes (clojure.data.json/write-str body) "UTF-8"))
+      (doseq [[k v] body]
+        (.addFormParam rb
+                       (if (keyword? k) (name k) k)
+                       (str v))))
 
-    (instance? InputStream body) (.setBody rb body)
+    (string? body)
+    (.setBody rb (.getBytes (if (= "application/x-www-form-urlencoded" content-type)
+                              (req/url-encode body)
+                              body)
+                            "UTF-8"))
 
-    (instance? File body) (.setBody rb body)))
+    (instance? InputStream body)
+    (.setBody rb body)
+
+    (instance? File body)
+    (.setBody rb body)))
 
 (defn- set-timeout
   "sets the timeout for the request"
