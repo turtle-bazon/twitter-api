@@ -1,4 +1,4 @@
-(defproject twitter-api/twitter-api "1.8.1"
+(defproject com.github.turtle-bazon/twitter-api "1.8.2"
   :description "Async interface to Twitter's REST and Streaming APIs"
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/data.json "0.2.6"]
