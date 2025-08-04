@@ -180,7 +180,9 @@
 (def-twitter-restful-method-11 :get "help/privacy")
 
 ;;
-(def-twitter-restful-method-2 :post "tweets")
+(def-twitter-restful-method-2
+  :post "tweets"
+  :headers {:content-type "application/json"})
 
 (defn media-upload-chunked
   "helper for uploading media using the chunked media upload API"

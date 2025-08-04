@@ -1,18 +1,21 @@
 (ns twitter.request
-  (:require [clojure.string :as str]
-            [clojure.java.io :as io]
-            [http.async.client :as ac]
-            [http.async.client.request :as req]
-            [http.async.client.util :as requ]
-            [twitter.callbacks.handlers :refer [handle-response]]
-            [twitter.callbacks.protocols :refer [emit-callback-list
-                                                 get-async-sync
-                                                 get-single-streaming]]
-            [twitter.utils :refer [get-file-ext]])
-  (:import (com.ning.http.client RequestBuilder)
-           (com.ning.http.client.cookie Cookie)
-           (com.ning.http.client.multipart FilePart StringPart)
-           (java.io File InputStream)))
+  (:require
+   [clojure.data.json :as json]
+   [clojure.string :as str]
+   [clojure.java.io :as io]
+   [http.async.client :as ac]
+   [http.async.client.request :as req]
+   [http.async.client.util :as requ]
+   [twitter.callbacks.handlers :refer [handle-response]]
+   [twitter.callbacks.protocols :refer [emit-callback-list
+                                        get-async-sync
+                                        get-single-streaming]]
+   [twitter.utils :refer [get-file-ext]])
+  (:import
+   (com.ning.http.client RequestBuilder)
+   (com.ning.http.client.cookie Cookie)
+   (com.ning.http.client.multipart FilePart StringPart)
+   (java.io File InputStream)))
 
 (defn get-response-transform
   "returns a function that transforms the response into the desired outcome, depending on the request state"
@@ -104,7 +107,7 @@
 
     (map? body)
     (if (= "application/json" content-type)
-      (.setBody rb (.getBytes (clojure.data.json/write-str body) "UTF-8"))
+      (.setBody rb (.getBytes (json/write-str body) "UTF-8"))
       (doseq [[k v] body]
         (.addFormParam rb
                        (if (keyword? k) (name k) k)
