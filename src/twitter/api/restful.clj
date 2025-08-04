@@ -60,7 +60,7 @@
 ; i.e. :body [(file-body-part "/pics/mypic.jpg") (status-body-part "hello world")]
 ; for an example, see twitter.test.upload
 (def-twitter-restful-method-11 :post "statuses/update_with_media"
-                               :api *rest-api*
+                               :api *rest-api-11*
                                :headers {:content-type "multipart/form-data"})
 
 ;; Media
